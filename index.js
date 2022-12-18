@@ -1,12 +1,15 @@
 import express from 'express';
-
 import mongoose from 'mongoose';
-
-import { registerValidation, loginValidation } from './validations/auth.js';
 
 import checkAuth from './utils/checkAuth.js';
 
+// Validators
+import { registerValidation, loginValidation } from './validations/auth.js';
+import { postCreateValidation } from './validations/post.js';
+
+// Controllers
 import * as UserController from './controllers/UserController.js';
+import * as PostController from './controllers/PostController.js';
 
 mongoose
    .set('strictQuery', true)
@@ -16,14 +19,17 @@ mongoose
 
 const app = express();
 app.use(express.json());
-// Login
+
+// User
+// - Login
 app.post('/auth/login', loginValidation, UserController.login);
-
-// Check User
+// - Check User
 app.get('/auth/me', checkAuth, UserController.authMe);
-
-// Register
+// - Register
 app.post('/auth/register', registerValidation, UserController.register);
+
+//Posts
+app.post('/posts', checkAuth, postCreateValidation, PostController.create);
 
 app.listen(4444, (err) => {
    if (err) {
