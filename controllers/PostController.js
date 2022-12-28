@@ -17,7 +17,7 @@ export const getOne = async (req, res) => {
    try {
       const postId = req.params.id;
 
-      PostModel.findByIdAndUpdate(
+      await PostModel.findByIdAndUpdate(
          {
             _id: postId,
          },
@@ -54,7 +54,7 @@ export const remove = async (req, res) => {
    try {
       const postId = req.params.id;
 
-      PostModel.findOneAndDelete(
+      await PostModel.findOneAndDelete(
          {
             _id: postId,
          },
@@ -97,6 +97,34 @@ export const create = async (req, res) => {
       console.log(err);
       res.status(500).json({
          message: 'Не получилось створити пост',
+      });
+   }
+};
+
+export const update = async (req, res) => {
+   try {
+      const postId = req.params.id;
+
+      await PostModel.updateOne(
+         {
+            _id: postId,
+         },
+         {
+            title: req.body.title,
+            text: req.body.text,
+            imageUrl: req.body.imageUrl,
+            tags: req.body.tags,
+            user: req.userId,
+         },
+      );
+
+      res.json({
+         success: true,
+      });
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({
+         message: 'Не вдалось обновити пост',
       });
    }
 };

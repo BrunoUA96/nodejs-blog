@@ -31,12 +31,14 @@ app.post('/auth/register', registerValidation, UserController.register);
 //Posts
 // - Get all Posts
 app.get('/posts', PostController.getAll);
-// - Get post by id
-app.get('/posts/:id', PostController.getOne);
-// - Remove post by id
-app.delete('/posts/:id', PostController.remove);
 // - Create Post
 app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+// - Update post
+app.patch('/posts/:id', checkAuth, PostController.update);
+// - Get post
+app.get('/posts/:id', PostController.getOne);
+// - Remove post
+app.delete('/posts/:id', checkAuth, PostController.remove);
 
 app.listen(4444, (err) => {
    if (err) {
