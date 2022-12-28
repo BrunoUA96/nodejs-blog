@@ -2,15 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
 
-import checkAuth from './utils/checkAuth.js';
-
 // Validators
 import { registerValidation, loginValidation } from './validations/auth.js';
 import { postCreateValidation } from './validations/post.js';
 
+// Utils
+import { checkAuth, handleValidationErrors } from './utils/index.js';
+
 // Controllers
-import * as UserController from './controllers/UserController.js';
-import * as PostController from './controllers/PostController.js';
+import { UserController, PostController } from './controllers/index.js';
 
 mongoose
    .set('strictQuery', true)
@@ -36,11 +36,11 @@ app.use('/uploads', express.static('uploads'));
 
 // User
 // - Login
-app.post('/auth/login', loginValidation, UserController.login);
+app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 // - Check User
 app.get('/auth/me', checkAuth, UserController.authMe);
 // - Register
-app.post('/auth/register', registerValidation, UserController.register);
+app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register);
 
 //Posts
 // - Image upload
@@ -53,9 +53,15 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 // - Get all Posts
 app.get('/posts', PostController.getAll);
 // - Create Post
-app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
 // - Update post
-app.patch('/posts/:id', checkAuth, PostController.update);
+app.patch(
+   '/posts/:id',
+   checkAuth,
+   postCreateValidation,
+   handleValidationErrors,
+   PostController.update,
+);
 // - Get post
 app.get('/posts/:id', PostController.getOne);
 // - Remove post
