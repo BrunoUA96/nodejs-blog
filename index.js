@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import multer from 'multer';
 
 import checkAuth from './utils/checkAuth.js';
 
@@ -18,7 +19,20 @@ mongoose
    .catch((err) => console.log('DB ERROR: ', err));
 
 const app = express();
+
+const storage = multer.diskStorage({
+   destination: (_, __, callBack) => {
+      callBack(null, 'uploads');
+   },
+   filename: (_, file, callBack) => {
+      callBack(null, file.originalname);
+   },
+});
+
+const upload = multer({ storage });
+
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // User
 // - Login
@@ -29,6 +43,13 @@ app.get('/auth/me', checkAuth, UserController.authMe);
 app.post('/auth/register', registerValidation, UserController.register);
 
 //Posts
+// - Image upload
+app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+   res.json({
+      url: `/uploads/${req.file.originalname}`,
+   });
+});
+
 // - Get all Posts
 app.get('/posts', PostController.getAll);
 // - Create Post
