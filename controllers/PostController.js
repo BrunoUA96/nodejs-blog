@@ -6,11 +6,78 @@ export const getAll = async (req, res) => {
 
       res.json(posts);
    } catch (error) {
-      console.log(err);
+      console.log(error);
       res.status(500).json({
          message: 'Не получилось дістати тости',
       });
    }
+};
+
+export const getOne = async (req, res) => {
+   try {
+      const postId = req.params.id;
+
+      PostModel.findByIdAndUpdate(
+         {
+            _id: postId,
+         },
+         { $inc: { viewsCount: 1 } },
+         {
+            returnDocument: 'after',
+         },
+         (err, doc) => {
+            if (err) {
+               console.log(err);
+               return res.status(500).json({
+                  message: 'Не получилось получити тост за допомогою Id',
+               });
+            }
+
+            if (!doc) {
+               return res.status(404).json({
+                  message: 'Не вдалось знайти пост',
+               });
+            }
+
+            res.json(doc);
+         },
+      );
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({
+         message: 'Не получилось дістати тости',
+      });
+   }
+};
+
+export const remove = async (req, res) => {
+   try {
+      const postId = req.params.id;
+
+      PostModel.findOneAndDelete(
+         {
+            _id: postId,
+         },
+         (err, doc) => {
+            if (err) {
+               console.log(err);
+               return res.status(500).json({
+                  message: 'Не получилось видалити тост за допомогою Id',
+               });
+            }
+
+            if (!doc) {
+               return res.status(404).json({
+                  message: 'Не вдалось знайти пост',
+               });
+            }
+
+            res.json({
+               success: true,
+            });
+         },
+      );
+   } catch (error) {}
 };
 
 export const create = async (req, res) => {
